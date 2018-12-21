@@ -11,24 +11,29 @@ function initMap() {
     omadi = new google.maps.LatLng(40.430471, -111.881574);
     geocoder = new google.maps.Geocoder();
     map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 15,
+        zoom: 7,
         center: omadi
     });
     
     marker = new google.maps.Marker({
         position: omadi,
-        map: map
+        map: map,
+        draggable: true
     });
     
     map.addListener('click', function(e) {
-        map.panTo(e.latLng);
-        marker.setMap(null);
-        marker = new google.maps.Marker({
-            position: e.latLng,
-            map: map
-        });
-        codeCoordinates(e.latLng);
-    })
+        marker.setPosition(e.latLng);
+        centerMap(e.latLng);
+    });
+    
+    marker.addListener('dragend', function(e) {
+        centerMap(e.latLng);
+    });
+}
+
+function centerMap(location){
+    map.panTo(location);
+    codeCoordinates(location);
 }
 
 function codeCoordinates(location) {
