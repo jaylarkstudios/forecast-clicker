@@ -1,8 +1,23 @@
+#instructions {
+    display: flex;
+    justify-content: center;
+    margin: 50px 50px 10px 50px;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+#credits {
+    display: flex;
+    justify-content: center;
+    margin: 10px 50px;
+    font-style: italic;
+}
+
 #container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 50px;
-    margin: 50px;
+    margin: 25px 50px 25px 50px;
 }
 
 #weather {
