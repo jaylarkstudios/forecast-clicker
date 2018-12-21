@@ -3,11 +3,14 @@
 //var WEATHER_APPID = "";
 
 var currentLoc;
+var geocoder;
+var map;
 
 function initMap() {
     var omadi = {lat: 40.430471, lng: -111.881574};
     currentLoc = omadi;
-    var map = new google.maps.Map(document.getElementById('map'), {
+    geocoder = new google.maps.Geocoder();
+    map = new google.maps.Map(document.getElementById('map'), {
         zoom: 15,
         center: omadi
     });
@@ -16,6 +19,21 @@ function initMap() {
         position: omadi,
         map: map
     });
+}
+
+function codeCoordinates() {
+    var latLang;
+    geocoder.geocode({'location': latLang}, function(results, status){
+        if (status == 'OK') {
+            map.setCenter(results[0].geometry.location);
+            var marker = new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map
+            });
+        } else {
+            console.warn('Geocode unsuccessful', status);
+        }
+    })
 }
 
 function displayWeather(data){
