@@ -2,66 +2,92 @@
 // Add your weather app id here
 //var WEATHER_APPID = "";
 
-var currentLoc;
 var geocoder;
 var map;
+var marker;
+var omadi;
 
 function initMap() {
-    var omadi = {lat: 40.430471, lng: -111.881574};
-    currentLoc = omadi;
+    omadi = new google.maps.LatLng(40.430471, -111.881574);
     geocoder = new google.maps.Geocoder();
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: 15,
         center: omadi
     });
     
-    var marker = new google.maps.Marker({
+    marker = new google.maps.Marker({
         position: omadi,
         map: map
     });
+    
+    map.addListener('click', function(e) {
+        map.panTo(e.latLng);
+        marker.setMap(null);
+        marker = new google.maps.Marker({
+            position: e.latLng,
+            map: map
+        });
+        codeCoordinates(e.latLng);
+    })
 }
 
-function codeCoordinates() {
-    var latLang;
-    geocoder.geocode({'location': latLang}, function(results, status){
+function codeCoordinates(location) {
+    geocoder.geocode({'location': location}, function(results, status){
         if (status == 'OK') {
-            map.setCenter(results[0].geometry.location);
-            var marker = new google.maps.Marker({
-                position: results[0].geometry.location,
-                map: map
-            });
+            //console.log('geocode success', results);
+            updateWeatherStats(results[0].geometry.location, getCityName(results));
         } else {
             console.warn('Geocode unsuccessful', status);
         }
     })
 }
 
-function displayWeather(data){
-    console.log("success", data);
-}
-
 function kelvinToFarenheit(tempK){
     return 1.8*(tempK - 273) + 32;
+}
+
+function getCityName(geocodeResults){
+    var address = geocodeResults[0].address_components;
+    //console.log('address', address);
+    for (var i=0; i<address.length; i++) {
+        var c = address[i];
+        //console.log('address component', c);
+        if (c.types.includes("locality")){
+            return c.long_name;
+        }
+    }
+    return null;
+}
+
+function getTimeString(seconds){
+    var date = new Date(seconds * 1000);
+    //console.log('date', date);
+    var min = date.getMinutes();
+    return date.getHours() + ":" + (min < 10 ? "0" : "") + min;
+}
+
+function updateWeatherStats(location, city){
+    //console.log(location);
+    $.ajax({
+        type: 'GET',
+        url: "http://api.openweathermap.org/data/2.5/weather?lat=" + location.lat() + "&lon=" + location.lng() + "&appid=" + WEATHER_APPID,
+        //url: "http://api.openweathermap.org/data/2.5/weather?lat=-25.344&lon=131.036&appid=15473ff2f5108c77c45e3cd4e64cf6e6",
+        success: function(data){
+            //console.log("weather success", data);
+            $('#weather-location').html(city);
+            $('#weather-condition').html(data.weather[0].main);
+            $('#weather-temperature').html(kelvinToFarenheit(data.main.temp).toFixed(0)+" ℉");
+            $('#weather-humidity').html(data.main.humidity + "%");
+            $('#weather-sunrise').html(getTimeString(data.sys.sunrise));
+            $('#weather-sunset').html(getTimeString(data.sys.sunset));
+            $('#weather-windspeed').html(data.wind.speed + " mph");
+            $('#weather-winddirection').html(data.wind.deg + " degree" + (data.wind.deg > 1 ? "s" : ""));
+        }
+    });
 }
 
 
 $(document).ready(function() {
     $("#map").hide(0).fadeIn(1000);
-    
-    $.ajax({
-        type: 'GET',
-        url: "http://api.openweathermap.org/data/2.5/weather?lat=" + currentLoc.lat + "&lon=" + currentLoc.lng + "&appid=" + WEATHER_APPID,
-        //url: "http://api.openweathermap.org/data/2.5/weather?lat=-25.344&lon=131.036&appid=15473ff2f5108c77c45e3cd4e64cf6e6",
-        success: function(data){
-            console.log("success", data);
-            $('#weather-location').html("x-location");
-            $('#weather-condition').html(data.weather[0].main);
-            $('#weather-temperature').html(kelvinToFarenheit(data.main.temp).toFixed(0)+" ℉");
-            $('#weather-humidity').html(data.main.humidity);
-            $('#weather-sunrise').html(data.sys.sunrise);
-            $('#weather-sunset').html(data.sys.sunset);
-            $('#weather-windspeed').html(data.wind.speed);
-            $('#weather-winddirection').html(data.wind.deg);
-        }
-    })
+    updateWeatherStats(omadi, "Lehi");
 });
