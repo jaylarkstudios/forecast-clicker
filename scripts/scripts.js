@@ -20,6 +20,7 @@ function initMap() {
         map: map,
         draggable: true
     });
+	centerMap(omadi);
     
     map.addListener('click', function(e) {
         marker.setPosition(e.latLng);
@@ -81,7 +82,7 @@ function updateWeatherStats(location, city){
             //console.log("weather success", data);
             $('#weather-location').html(city);
             $('#weather-condition').html(data.weather[0].main);
-            $('#weather-temperature').html(kelvinToFarenheit(data.main.temp).toFixed(0)+" ℉");
+            $('#weather-temperature').html(kelvinToFarenheit(data.main.temp).toFixed(2)+" F");
             $('#weather-humidity').html(data.main.humidity + "%");
             $('#weather-sunrise').html(getTimeString(data.sys.sunrise));
             $('#weather-sunset').html(getTimeString(data.sys.sunset));
@@ -90,7 +91,6 @@ function updateWeatherStats(location, city){
         }
     });
 }
-
 
 $(document).ready(function() {
     $("#map").hide(0).fadeIn(1000);

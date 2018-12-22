@@ -7,3 +7,5 @@ Click the map to see the current weather for those coordinates.
 * https://developers.google.com/maps/documentation/javascript/events
 * https://openweathermap.org/current
 * http://api.jquery.com/jquery.ajax/
+
+_Coding exercise by Omadi. Implementation by Joshua Whiting (josh@jaylarkstudios.com)._
